@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "xJsAttacher.h"
 #include "xJsAttacherDlg.h"
+#include "Custsite.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -51,8 +52,16 @@ BOOL CxJsAttacherApp::InitInstance()
 
 	CWinApp::InitInstance();
 
+     // some code from https://www.codeproject.com/Articles/4805/Advanced-customization-of-WebBrowser-Control-in-Di
+	// I id some resarch, almost understand the principle of customization of WebBrowser https://msdn.microsoft.com/en-us/library/aa770041(v=vs.85).aspx
+	// then I find https://www.codeproject.com/Articles/4805/Advanced-customization-of-WebBrowser-Control-in-Di 
+	// so , as a lazy man, I just copy and modify the code to implement my function
+	// I would commit the sample to the github for later use.
 
-	AfxEnableControlContainer();
+
+	CCustomOccManager *pOccMgr = new CCustomOccManager();
+
+	AfxEnableControlContainer(pOccMgr);
 
 	// 创建 shell 管理器，以防对话框包含
 	// 任何 shell 树视图控件或 shell 列表视图控件。
@@ -93,6 +102,10 @@ BOOL CxJsAttacherApp::InitInstance()
 	if (pShellManager != NULL)
 	{
 		delete pShellManager;
+	}
+
+	if (pOccMgr) {
+		delete pOccMgr;
 	}
 
 #ifndef _AFXDLL

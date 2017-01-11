@@ -4,7 +4,7 @@
 
 #pragma once
 #include "explorer1.h"
-
+#include <vector>
 
 // CxJsAttacherDlg ¶Ô»°¿ò
 class CxJsAttacherDlg : public CDialogEx
@@ -36,4 +36,7 @@ public:
 	CExplorer1 m_myIe;
 	DECLARE_EVENTSINK_MAP()
 	void DocumentCompleteExplorer1(LPDISPATCH pDisp, VARIANT* URL);
+
+	std::vector<CString> m_jsList;
+	CString m_dstUrl;
 };

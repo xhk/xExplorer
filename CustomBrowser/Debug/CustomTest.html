@@ -1,0 +1,85 @@
+<HTML>
+<HEAD>
+	<TITLE>Custom Test</TITLE>
+	<script langauge="javascript">
+	function fnIsOurCustomBrowser()
+	{
+		//Check to see if this is our custom
+		//browser. We just see if the function 
+		//IsOurCustomBrowser is available. By leaving
+		//the brackets off of our function it is treated
+		//as a property and thus allows us to check if
+		//our method exists in the external window. If it
+		//returns null then obviously this is not our custom
+		//browser, so we return false.
+		if(window.external.CB_IsOurCustomBrowser!=null)
+			return true;
+		else 
+			return false;
+	}	
+	
+	//setup a variable to let us know if this is our
+	//custom browser.
+	bIsCustomBrowser = fnIsOurCustomBrowser();
+
+	if(!bIsCustomBrowser)
+	{
+		//You can check here to see if they have our custom browser.
+		//If they don't you can do whatever you want, redirect them
+		//to another page or whatever. For the purposes of this example
+		//I will just alert them
+		alert('You must be using Custom Browser to view this page properly.');
+	}
+
+	function fnCallFunction()
+	{
+		//Call c++ function that we made
+		//in our custom browser
+		if(bIsCustomBrowser)
+		window.external.CB_CustomFunction();
+	}	
+
+	function fnCallFunctionWithParams(strString, nNumber)
+	{
+		//Call c++ function that accepts parameters 
+		//that we made in our custom browser
+		if(bIsCustomBrowser)
+		window.external.CB_CustomFunctionWithParams(strString, nNumber);
+	}
+
+	function fnOpenWindow(strURL, nLeft, nTop, nWidth, nHeight, nResizable)
+	{
+		if(bIsCustomBrowser)
+		window.external.CB_OpenWindow(strURL, nLeft, nTop, nWidth, nHeight, nResizable);
+	}
+
+	function fnShowModalDialog(strURL, nLeft, nTop, nWidth, nHeight)
+	{
+		if(bIsCustomBrowser)
+		window.external.CB_ShowModalDialog(strURL, nLeft, nTop, nWidth, nHeight);
+	}
+
+	function fnShowModelessDialog(strURL, nLeft, nTop, nWidth, nHeight)
+	{
+		if(bIsCustomBrowser)
+		window.external.CB_ShowModelessDialog(strURL, nLeft, nTop, nWidth, nHeight);
+	}
+	</script>
+</HEAD>
+<BODY style="font-family:arial;font-size:10pt;" bgcolor="#eeeeee">
+<h2><b><u>Custom Web Browser Test Page</u></b></h2>
+
+<p>Call C++ Function from javascript.</p>
+<input type="button" value="Click To Test" onclick="fnCallFunction();"><BR><BR><BR>
+<p>Call C++ Function with parameters: <BR>param1: <input type="text" name="param1" value="test" style="width:60;"> <BR>param2: <input type="text" name="param2" value="193" style="width:60;"></p>
+<input type="button" value="Click To Test" onclick="fnCallFunctionWithParams(document.all.param1.value,parseInt(document.all.param2.value));"><BR><BR><BR>
+<P>Open our custom Window from javascript</p>
+<input type="button" value="Click To Test" onclick="fnOpenWindow('www.thecodeproject.com',0,0,500,500,1);"><BR><BR><BR>
+<p>Call our function to open a Modal Dialog</p>
+<input type="button" value="Click To Test" onclick="fnShowModalDialog('www.codeguru.com',0,0,500,500);"><BR><BR><BR>
+<p>Call our function to open a Modeless Dialog</p>
+<input type="button" value="Click To Test" onclick="fnShowModelessDialog('www.google.com',0,0,500,500);"><BR><BR><BR>
+<p>Call alert to see our custom message box</p>
+<input type="button" value="Click To Test" onclick="alert('Custom MessageBox Test. Notice how we have the criticl symbol now. We could literally make this messagebox be whatever we want it to be.');"><BR><BR><BR>
+</BODY>
+</HTML>

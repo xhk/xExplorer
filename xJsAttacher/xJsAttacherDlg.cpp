@@ -7,6 +7,7 @@
 #include "xJsAttacherDlg.h"
 #include "afxdialogex.h"
 #include <xQuery\xQuery.h>
+#include <xBase\Widgets.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -101,8 +102,25 @@ BOOL CxJsAttacherDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+
+	
+	
 	m_myIe.put_Silent(TRUE);
-	m_myIe.Navigate(L"http://www.baidu.com", NULL, NULL, NULL, NULL);
+	
+	if (__argc == 1) {
+		m_myIe.Navigate(L"http://www.baidu.com", NULL, NULL, NULL, NULL);
+	}
+	else {
+		if (__argc == 3) {
+			CString url = __wargv[1];
+			CString jsFiles = __wargv[2];
+			CWidgets::SplitStr(m_jsList, jsFiles, _T(","));
+
+			m_dstUrl = url;
+			m_myIe.Navigate(url, NULL, NULL, NULL, NULL);
+		}
+		
+	}
 	
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -184,25 +202,27 @@ std::wstring Acsii2WideByte(std::string& strascii)
 	return std::wstring(&resultstring[0]);
 }
 
+
+
 void CxJsAttacherDlg::DocumentCompleteExplorer1(LPDISPATCH pDisp, VARIANT* URL)
 {
 	// TODO: 在此处添加消息处理程序代码
+	_bstr_t bs = URL;
+	CString strUrl = bs;
+
+	//if( strUrl != m_dstUrl ){
+	//	return;
+	//}
+
 	xQuery x;
 	CComPtr<IDispatch> dis = m_myIe.get_Document();
 	x.Attach(m_myIe.get_Document());
 	std::vector<xHtmlElement> ec;
 	//x.query(selector, ec);
-	x.query(_T("head"), ec);
-	//ec[0].append(_T("<br><script defer src=\"http://192.168.67.132/examples/jsp/test.js\"></script>"));
-	char buf[1024 * 300] = { 0 };
-	FILE * f;
-	fopen_s(&f, "jquery-3.1.1.js", "r");
-	int nRead = fread(buf, 1, sizeof(buf), f);
-
-	std::string s = buf;
-
-	std::wstring ws = Acsii2WideByte(s);
-
-	ec[0].appendJS(ws.c_str());
-	ec[0].appendJS(L"alert($('input').length)");
+	x.query(_T("head"), ec);;
+	CString js;
+	for (auto i = m_jsList.begin(); i != m_jsList.end(); ++i) {
+		CWidgets::ReadFile(js, *i, _T("utf-8"));
+		ec[0].appendJS(js);
+	}
 }
