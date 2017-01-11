@@ -9,6 +9,8 @@
 #ifndef _IDISPIMP_H_
 #define _IDISPIMP_H_
 
+
+
 class CImpIDispatch : public IDispatch
 {
     protected:
@@ -42,6 +44,51 @@ class CImpIDispatch : public IDispatch
             /* [out] */ VARIANT  *pVarResult,
             /* [out] */ EXCEPINFO *pExcepInfo,
             /* [out] */ UINT *puArgErr);
+
+		typedef HRESULT(__stdcall CImpIDispatch::*JSExternalMethod_Entry)(/* [in] */ DISPID dispIdMember,/* [in] */ REFIID /*riid*/,/* [in] */ LCID /*lcid*/,	/* [in] */ WORD wFlags,	/* [out][in] */ DISPPARAMS* pDispParams,	/* [out] */ VARIANT* pVarResult,	/* [out] */ EXCEPINFO* /*pExcepInfo*/,	/* [out] */ UINT* puArgErr);
+
+private:
+	STDMETHODIMP JsOpenFile( /* [in] */ DISPID dispIdMember,
+		/* [in] */ REFIID riid,
+		/* [in] */ LCID lcid,
+		/* [in] */ WORD wFlags,
+		/* [out][in] */ DISPPARAMS  *pDispParams,
+		/* [out] */ VARIANT  *pVarResult,
+		/* [out] */ EXCEPINFO *pExcepInfo,
+		/* [out] */ UINT *puArgErr);
+
+	STDMETHODIMP JsCloseFile( /* [in] */ DISPID dispIdMember,
+		/* [in] */ REFIID riid,
+		/* [in] */ LCID lcid,
+		/* [in] */ WORD wFlags,
+		/* [out][in] */ DISPPARAMS  *pDispParams,
+		/* [out] */ VARIANT  *pVarResult,
+		/* [out] */ EXCEPINFO *pExcepInfo,
+		/* [out] */ UINT *puArgErr);
+
+	STDMETHODIMP JsWriteFile( /* [in] */ DISPID dispIdMember,
+		/* [in] */ REFIID riid,
+		/* [in] */ LCID lcid,
+		/* [in] */ WORD wFlags,
+		/* [out][in] */ DISPPARAMS  *pDispParams,
+		/* [out] */ VARIANT  *pVarResult,
+		/* [out] */ EXCEPINFO *pExcepInfo,
+		/* [out] */ UINT *puArgErr);
+
+	STDMETHODIMP JsReadFile( /* [in] */ DISPID dispIdMember,
+		/* [in] */ REFIID riid,
+		/* [in] */ LCID lcid,
+		/* [in] */ WORD wFlags,
+		/* [out][in] */ DISPPARAMS  *pDispParams,
+		/* [out] */ VARIANT  *pVarResult,
+		/* [out] */ EXCEPINFO *pExcepInfo,
+		/* [out] */ UINT *puArgErr);
+	union MyUnion
+	{
+		JSExternalMethod_Entry fn;
+		HRESULT(__stdcall CImpIDispatch::*pfnJsOpenFile)(/* [in] */ DISPID dispIdMember,/* [in] */ REFIID /*riid*/,/* [in] */ LCID /*lcid*/,	/* [in] */ WORD wFlags,	/* [out][in] */ DISPPARAMS* pDispParams,	/* [out] */ VARIANT* pVarResult,	/* [out] */ EXCEPINFO* /*pExcepInfo*/,	/* [out] */ UINT* puArgErr);
+	}mufn;
+	static void *GetCustomMethodMap();
 
 };
 #endif //_IDISPIMP_H_

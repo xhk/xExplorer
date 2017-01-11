@@ -97,7 +97,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>xQuery.lib</AdditionalDependencies>
+      <AdditionalDependencies>xQuery.lib;xBase.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -188,7 +188,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Custsite.h" />
     <ClInclude Include="explorer1.h" />
+    <ClInclude Include="Idispimp.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -196,7 +198,9 @@
     <ClInclude Include="xJsAttacherDlg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Custsite.cpp" />
     <ClCompile Include="explorer1.cpp" />
+    <ClCompile Include="Idispimp.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CxJsAttacherDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CxJsAttacherDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -103,7 +104,6 @@ BOOL CxJsAttacherDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 
-	
 	
 	m_myIe.put_Silent(TRUE);
 	
@@ -225,4 +225,10 @@ void CxJsAttacherDlg::DocumentCompleteExplorer1(LPDISPATCH pDisp, VARIANT* URL)
 		CWidgets::ReadFile(js, *i, _T("utf-8"));
 		ec[0].appendJS(js);
 	}
+}
+
+
+void CxJsAttacherDlg::OnBnClickedButton1()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

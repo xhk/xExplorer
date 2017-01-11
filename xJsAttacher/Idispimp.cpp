@@ -23,6 +23,7 @@ CString cszCB_CustomFunctionWithParams = L"CB_CustomFunctionWithParams";
 CString cszCB_OpenWindow = L"CB_OpenWindow";
 CString cszCB_ShowModalDialog = L"CB_ShowModalDialog";
 CString cszCB_ShowModelessDialog = L"CB_ShowModelessDialog";
+CString cszCB_WriteFile = L"WriteFile";
 
 #define DISPID_CB_IsOurCustomBrowser 1
 #define DISPID_CB_Close 2
@@ -33,6 +34,26 @@ CString cszCB_ShowModelessDialog = L"CB_ShowModelessDialog";
 #define DISPID_CB_ShowModelessDialog 7
 
 
+
+struct JSExternalMethod {
+	int nId;
+	CString strMethod;
+	CImpIDispatch::JSExternalMethod_Entry fnEntry;
+};
+
+
+
+
+void *CImpIDispatch::GetCustomMethodMap() {
+	static JSExternalMethod js_external_method[] = {
+		{ 1, L"OpenFile",  &CImpIDispatch::JsOpenFile },
+		{ 2, L"CloseFile", &CImpIDispatch::JsCloseFile },
+		{ 3, L"WriteFile", &CImpIDispatch::JsWriteFile },
+		{ 4, L"ReadFile" , &CImpIDispatch::JsReadFile },
+		{ 0, L"" }
+	};
+	return js_external_method;
+}
 
 /*
  * CImpIDispatch::CImpIDispatch
@@ -121,39 +142,21 @@ STDMETHODIMP CImpIDispatch::GetIDsOfNames(
 	// Assume some degree of success
 	hr = NOERROR;
 
+	JSExternalMethod *js_external_method = (JSExternalMethod *)GetCustomMethodMap();
 
-		for ( i=0; i < cNames; i++) {
+	for ( i=0; i < cNames; i++) {
 		CString cszName  = rgszNames[i];
+		int j = 0;
+		bool find = false;
+		while (js_external_method[j].nId) {
+			if (js_external_method[j].strMethod == cszName) {
+				rgDispId[i] = js_external_method[j].nId;
+				find = true;
+			}
+			j++;
+		}
 
-		if(cszName == cszCB_IsOurCustomBrowser)
-		{
-			rgDispId[i] = DISPID_CB_IsOurCustomBrowser;
-		}
-		else if(cszName == cszCB_Close)
-		{
-			rgDispId[i] = DISPID_CB_Close;
-		}
-		else if(cszName == cszCB_CustomFunction)
-		{
-			rgDispId[i] = DISPID_CB_CustomFunction;
-		}
-		else if(cszName == cszCB_CustomFunctionWithParams)
-		{
-			rgDispId[i] = DISPID_CB_CustomFunctionWithParams;
-		}	
-		else if(cszName == cszCB_OpenWindow)
-		{
-			rgDispId[i] = DISPID_CB_OpenWindow;
-		}
-		else if(cszName == cszCB_ShowModalDialog)
-		{
-			rgDispId[i] = DISPID_CB_ShowModalDialog;
-		}
-		else if(cszName == cszCB_ShowModelessDialog)
-		{
-			rgDispId[i] = DISPID_CB_ShowModelessDialog;
-		}
-		else {
+		if( !find ) {
 			// One or more are unknown so set the return code accordingly
 			hr = ResultFromScode(DISP_E_UNKNOWNNAME);
 			rgDispId[i] = DISPID_UNKNOWN;
@@ -164,190 +167,87 @@ STDMETHODIMP CImpIDispatch::GetIDsOfNames(
 
 STDMETHODIMP CImpIDispatch::Invoke(
             /* [in] */ DISPID dispIdMember,
-            /* [in] */ REFIID /*riid*/,
-            /* [in] */ LCID /*lcid*/,
+            /* [in] */ REFIID riid,
+            /* [in] */ LCID lcid,
             /* [in] */ WORD wFlags,
             /* [out][in] */ DISPPARAMS* pDispParams,
             /* [out] */ VARIANT* pVarResult,
-            /* [out] */ EXCEPINFO* /*pExcepInfo*/,
+            /* [out] */ EXCEPINFO* pExcepInfo,
             /* [out] */ UINT* puArgErr)
 {
 
-	//CCustomBrowserDlg* pDlg = (CCustomBrowserDlg*) AfxGetMainWnd();
-	
-	if(dispIdMember == DISPID_CB_IsOurCustomBrowser) 
+	JSExternalMethod *js_external_method = (JSExternalMethod *)GetCustomMethodMap();
+	int j = 0;
+	while (js_external_method[j].nId)
 	{
-		if(wFlags & DISPATCH_PROPERTYGET)
-		{
-			if(pVarResult != NULL)
-			{
-				VariantInit(pVarResult);
-				V_VT(pVarResult)=VT_BOOL;
-				V_BOOL(pVarResult) = true;
-			}
+		if (js_external_method[j].fnEntry) {
+			mufn.fn = js_external_method[j].fnEntry;
+			return (this->*mufn.pfnJsOpenFile)(dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr);
 		}
-		
-		if ( wFlags & DISPATCH_METHOD )
+		j++;
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP CImpIDispatch::JsOpenFile( /* [in] */ DISPID dispIdMember,
+	/* [in] */ REFIID riid,
+	/* [in] */ LCID lcid,
+	/* [in] */ WORD wFlags,
+	/* [out][in] */ DISPPARAMS  *pDispParams,
+	/* [out] */ VARIANT  *pVarResult,
+	/* [out] */ EXCEPINFO *pExcepInfo,
+	/* [out] */ UINT *puArgErr)
+{
+	if (wFlags & DISPATCH_PROPERTYGET)
+	{
+		if (pVarResult != NULL)
 		{
-			//bool bResult = pDlg->CB_IsOurCustomBrowser();
-			bool bResult = true;
+
 			VariantInit(pVarResult);
-			V_VT(pVarResult)=VT_BOOL;
-			V_BOOL(pVarResult) = bResult;
+			V_VT(pVarResult) = VT_BOOL;
+			V_BOOL(pVarResult) = true;
 		}
-		
-	}
-	
-	if(dispIdMember == DISPID_CB_Close) 
-	{
-		if(wFlags & DISPATCH_PROPERTYGET)
-		{
-			if(pVarResult != NULL)
-			{	
-				VariantInit(pVarResult);
-				V_VT(pVarResult)=VT_BOOL;
-				V_BOOL(pVarResult) = true;
-			}
-		}
-		
-		if ( wFlags & DISPATCH_METHOD )
-		{
-			
-			//pDlg->CB_Close();
-		}
-		
-	}
-	
-	
-	if(dispIdMember == DISPID_CB_CustomFunction) 
-	{
-		if(wFlags & DISPATCH_PROPERTYGET)
-		{
-			if(pVarResult != NULL)
-			{
-				VariantInit(pVarResult);
-				V_VT(pVarResult)=VT_BOOL;
-				V_BOOL(pVarResult) = true;
-			}
-		}
-		
-		if ( wFlags & DISPATCH_METHOD )
-		{
-			//pDlg->CB_CustomFunction();
-		}
-        
-		
-	}
-	
-	if(dispIdMember == DISPID_CB_CustomFunctionWithParams) 
-	{
-		if(wFlags & DISPATCH_PROPERTYGET)
-		{
-			if(pVarResult != NULL)
-			{
-				
-				VariantInit(pVarResult);
-				V_VT(pVarResult)=VT_BOOL;
-				V_BOOL(pVarResult) = true;
-			}
-		}
-		
-		if ( wFlags & DISPATCH_METHOD )
-		{
-			//arguments come in reverse order
-			//for some reason
-			CString cszArg1= pDispParams->rgvarg[1].bstrVal; // in case you want a CString copy
-			int nArg2= pDispParams->rgvarg[0].intVal;
-			
-			//pDlg->CB_CustomFunctionWithParams(cszArg1, nArg2);
-		}
-		
+
 	}
 
-	if(dispIdMember == DISPID_CB_OpenWindow) 
+	if( wFlags & DISPATCH_METHOD)
 	{
-		if(wFlags & DISPATCH_PROPERTYGET)
-		{
-			if(pVarResult != NULL)
-			{
-				
-				VariantInit(pVarResult);
-				V_VT(pVarResult)=VT_BOOL;
-				V_BOOL(pVarResult) = true;
-			}
-		}
-		
-		if ( wFlags & DISPATCH_METHOD )
-		{
-			//arguments come in reverse order
-			//for some reason
-			CString cszArg1= pDispParams->rgvarg[5].bstrVal; // in case you want a CString copy
-			int nArg2= pDispParams->rgvarg[4].intVal;
-			int nArg3= pDispParams->rgvarg[3].intVal;
-			int nArg4= pDispParams->rgvarg[2].intVal;
-			int nArg5= pDispParams->rgvarg[1].intVal;
-			int nArg6 = pDispParams->rgvarg[0].intVal;
-			
-			//pDlg->CB_OpenWindow(cszArg1, nArg2, nArg3, nArg4, nArg5, nArg6);
-		}
-		
-	}
-	
-	if(dispIdMember == DISPID_CB_ShowModelessDialog) 
-	{
-		if(wFlags & DISPATCH_PROPERTYGET)
-		{
-			if(pVarResult != NULL)
-			{
-				
-				VariantInit(pVarResult);
-				V_VT(pVarResult)=VT_BOOL;
-				V_BOOL(pVarResult) = true;
-			}
-		}
-		
-		if ( wFlags & DISPATCH_METHOD )
-		{
-			//arguments come in reverse order
-			//for some reason
-			CString cszArg1= pDispParams->rgvarg[4].bstrVal; // in case you want a CString copy
-			int nArg2= pDispParams->rgvarg[3].intVal;
-			int nArg3= pDispParams->rgvarg[2].intVal;
-			int nArg4= pDispParams->rgvarg[1].intVal;
-			int nArg5= pDispParams->rgvarg[0].intVal;
-			
-			//pDlg->CB_ShowModelessDialog(cszArg1, nArg2, nArg3, nArg4, nArg5);
-		}
-		
-	}
-	
-	if(dispIdMember == DISPID_CB_ShowModalDialog) 
-	{
-		if(wFlags & DISPATCH_PROPERTYGET)
-		{
-			if(pVarResult != NULL)
-			{
-				
-				VariantInit(pVarResult);
-				V_VT(pVarResult)=VT_BOOL;
-				V_BOOL(pVarResult) = true;
-			}
-		}
-		
-		if ( wFlags & DISPATCH_METHOD )
-		{
-			//arguments come in reverse order
-			//for some reason
-			CString cszArg1= pDispParams->rgvarg[4].bstrVal; // in case you want a CString copy
-			int nArg2= pDispParams->rgvarg[3].intVal;
-			int nArg3= pDispParams->rgvarg[2].intVal;
-			int nArg4= pDispParams->rgvarg[1].intVal;
-			int nArg5= pDispParams->rgvarg[0].intVal;
-			
-			//pDlg->CB_ShowModalDialog(cszArg1, nArg2, nArg3, nArg4, nArg5);
-		}
-		
+
 	}
 
+	return S_OK;
+}
+
+STDMETHODIMP CImpIDispatch::JsCloseFile( /* [in] */ DISPID dispIdMember,
+	/* [in] */ REFIID riid,
+	/* [in] */ LCID lcid,
+	/* [in] */ WORD wFlags,
+	/* [out][in] */ DISPPARAMS  *pDispParams,
+	/* [out] */ VARIANT  *pVarResult,
+	/* [out] */ EXCEPINFO *pExcepInfo,
+	/* [out] */ UINT *puArgErr) {
+	return S_OK;
+}
+
+STDMETHODIMP CImpIDispatch::JsWriteFile( /* [in] */ DISPID dispIdMember,
+	/* [in] */ REFIID riid,
+	/* [in] */ LCID lcid,
+	/* [in] */ WORD wFlags,
+	/* [out][in] */ DISPPARAMS  *pDispParams,
+	/* [out] */ VARIANT  *pVarResult,
+	/* [out] */ EXCEPINFO *pExcepInfo,
+	/* [out] */ UINT *puArgErr) {
+	return S_OK;
+}
+
+STDMETHODIMP CImpIDispatch::JsReadFile( /* [in] */ DISPID dispIdMember,
+	/* [in] */ REFIID riid,
+	/* [in] */ LCID lcid,
+	/* [in] */ WORD wFlags,
+	/* [out][in] */ DISPPARAMS  *pDispParams,
+	/* [out] */ VARIANT  *pVarResult,
+	/* [out] */ EXCEPINFO *pExcepInfo,
+	/* [out] */ UINT *puArgErr) {
 	return S_OK;
 }

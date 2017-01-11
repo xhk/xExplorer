@@ -36,6 +36,12 @@
     <ClInclude Include="explorer1.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Custsite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Idispimp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xJsAttacher.cpp">
@@ -48,6 +54,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="explorer1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Custsite.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Idispimp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -39,4 +39,5 @@ public:
 
 	std::vector<CString> m_jsList;
 	CString m_dstUrl;
+	afx_msg void OnBnClickedButton1();
 };
