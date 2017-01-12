@@ -306,30 +306,29 @@ void CWidgets::Utf82Unicdoe(const char *utf8, CString & u) {
 
 
 //unicode 转为 ascii  
-std::string CWidgets::WideByte2Acsii(std::wstring& wstrcode)
+bool CWidgets::WideByte2Acsii(std::string &str, const wchar_t * wstrcode)
 {
-	int asciisize = ::WideCharToMultiByte(CP_OEMCP, 0, wstrcode.c_str(), -1, NULL, 0, NULL, NULL);
+	int asciisize = ::WideCharToMultiByte(CP_OEMCP, 0, wstrcode, -1, NULL, 0, NULL, NULL);
 	if (asciisize == ERROR_NO_UNICODE_TRANSLATION)
 	{
-		throw std::exception("Invalid UTF-8 sequence.");
+		return false;
 	}
 	if (asciisize == 0)
 	{
-		throw std::exception("Error in conversion.");
+		return false;
 	}
 	std::vector<char> resultstring(asciisize);
-	int convresult = ::WideCharToMultiByte(CP_OEMCP, 0, wstrcode.c_str(), -1, &resultstring[0], asciisize, NULL, NULL);
+	int convresult = ::WideCharToMultiByte(CP_OEMCP, 0, wstrcode, -1, &resultstring[0], asciisize, NULL, NULL);
 
 	if (convresult != asciisize)
 	{
-		throw std::exception("La falla!");
+		return false;
 	}
 
-	return std::string(&resultstring[0]);
+	str = &resultstring[0];
+
+	return true;
 }
-
-
-
 
 
 void CWidgets::SimpleA2w(wchar_t *dst, int dst_len, const char *src)
@@ -395,7 +394,7 @@ std::string CWidgets::UTF_82ASCII(std::string& strUtf8Code)
 	//先把 utf8 转为 unicode  
 	std::wstring wstr = Utf82Unicode(strUtf8Code);
 	//最后把 unicode 转为 ascii  
-	strRet = WideByte2Acsii(wstr);
+	strRet = WideByte2Acsii(strRet, wstr.c_str());
 	return strRet;
 }
 
@@ -433,24 +432,26 @@ std::wstring CWidgets::Acsii2WideByte(std::string& strascii)
 
 
 //Unicode 转 Utf8  
-std::string CWidgets::Unicode2Utf8(const std::wstring& widestring)
+bool CWidgets::Unicode2Utf8(std::string & str, const wchar_t * widestring)
 {
-	int utf8size = ::WideCharToMultiByte(CP_UTF8, 0, widestring.c_str(), -1, NULL, 0, NULL, NULL);
+	int utf8size = ::WideCharToMultiByte(CP_UTF8, 0, widestring, -1, NULL, 0, NULL, NULL);
 	if (utf8size == 0)
 	{
-		throw std::exception("Error in conversion.");
+		return false;
 	}
 
 	std::vector<char> resultstring(utf8size);
 
-	int convresult = ::WideCharToMultiByte(CP_UTF8, 0, widestring.c_str(), -1, &resultstring[0], utf8size, NULL, NULL);
+	int convresult = ::WideCharToMultiByte(CP_UTF8, 0, widestring, -1, &resultstring[0], utf8size, NULL, NULL);
 
 	if (convresult != utf8size)
 	{
-		throw std::exception("La falla!");
+		return false;
 	}
 
-	return std::string(&resultstring[0]);
+	str = &resultstring[0];
+
+	return true;
 }
 
 
@@ -461,7 +462,7 @@ std::string CWidgets::ASCII2UTF_8(std::string& strAsciiCode)
 	//先把 ascii 转为 unicode  
 	std::wstring wstr = Acsii2WideByte(strAsciiCode);
 	//最后把 unicode 转为 utf8  
-	strRet = Unicode2Utf8(wstr);
+	Unicode2Utf8(strRet, wstr.c_str());
 	return strRet;
 }
 

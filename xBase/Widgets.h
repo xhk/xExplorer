@@ -81,10 +81,10 @@ public:
 	static std::string UTF_82ASCII(std::string& strUtf8Code);
 	static std::string Utf8ToAscii(const char *pszUtf8);
 	static std::wstring Acsii2WideByte(std::string& strascii);
-	static std::string Unicode2Utf8(const std::wstring& widestring);
+	static bool Unicode2Utf8(std::string & str, const wchar_t * widestring);
 	static std::string ASCII2UTF_8(std::string& strAsciiCode);
 	static std::string AsciiToUtf8(const char *pszAscii);
-	static std::string WideByte2Acsii(std::wstring& wstrcode);
+	static bool WideByte2Acsii(std::string &str, const wchar_t * wstrcode);
 
 	static void SimpleA2w(wchar_t *dst, int dst_len, const char *src);
 	static void SimpleW2a(char *dst, int dst_len, const wchar_t *src);
